@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Pagamento Pix — Digital Consórcio</title>
+<meta name="robots" content="noindex,nofollow"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0B1220;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;font-family:'Inter',system-ui,sans-serif;}
+.card{width:100%;max-width:400px;background:#111E32;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6);}
+.header{background:linear-gradient(135deg,#0D1524,#111E32);padding:24px;border-bottom:1px solid #1E2D4A;text-align:center;}
+.badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#5DCAA5;margin-bottom:8px;}
+.title{font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;}
+.adm{font-size:12px;color:#5DCAA5;}
+.valor{font-size:32px;font-weight:900;color:#1D9E75;margin:12px 0 4px;}
+.para{font-size:11px;color:#8899AA;}
+.body{padding:24px;}
+.qr-wrap{display:inline-block;background:#fff;padding:14px;border-radius:14px;margin-bottom:14px;}
+canvas{display:block;}
+.instrucao{font-size:12px;color:#5DCAA5;margin-bottom:20px;}
+.codigo-box{background:#0D1524;border:1px solid #1E2D4A;border-radius:8px;padding:10px 14px;font-family:monospace;font-size:10px;color:#8899AA;word-break:break-all;margin-bottom:16px;max-height:64px;overflow:hidden;}
+.btn-copiar{width:100%;padding:16px;background:#1D9E75;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.2s;}
+.btn-copiar:active{background:#0F7A5A;}
+.copiado{display:none;margin-top:12px;font-size:13px;color:#5DCAA5;font-weight:600;}
+.footer{background:#070D19;padding:14px 24px;text-align:center;border-top:1px solid #1E2D4A;}
+.footer-txt{font-size:10px;color:#3A4A5A;}
+.erro{padding:40px;text-align:center;color:#dc2626;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="erro" id="loading">Carregando...</div>
+</div>
+
+<script>
+// ===== QR CODE ENGINE (mínimo) =====
+var QRCodeGen=(function(){
+var qrcode=function(t,e){var n=this,r=-1;n.getModuleCount=function(){return r};var i=-1,a=[],s=null,o=null,l=null;n.make=function(){i=0;for(var t=8*n.getTypeNumber()+4;t<=8*(n.getTypeNumber()+1)+4;t++){for(var e=n.getModuleCount(),r=new Array(e),i=0;i<e;i++){r[i]=new Array(e);for(var a=0;a<e;a++)r[i][a]=null}n.setupPositionProbePattern(r,0,0);n.setupPositionProbePattern(r,r.length-7,0);n.setupPositionProbePattern(r,0,r.length-7);n.setupPositionAdjustPattern(r);n.setupTimingPattern(r);n.setupTypeInfo(r,!0,t);n.getTypeNumber()>=7&&n.setupTypeNumber(r,!0);null==s&&(s=n.createData(n.getTypeNumber(),n.getErrorCorrectionLevel(),l));n.mapData(r,s);var o=n.getMaskPattern(r,t);if(-1==i||o<i){i=o;a=r}}n.modules=a};var h=function(){var t=new Array(a.length);for(var e=0;e<a.length;e++){t[e]=new Array(a[e].length);for(var r=0;r<a[e].length;r++)t[e][r]=a[e][r]}return t};n.getTypeNumber=function(){return t};n.getErrorCorrectionLevel=function(){return e};n.isDark=function(t,e){return null!=n.modules[t][e]&&n.modules[t][e]};n.getModuleCount=function(){return r};n.setup=function(t){i=-1;r=4*t+17;a=new Array(r);for(var e=0;e<r;e++){a[e]=new Array(r);for(var n=0;n<r;n++)a[e][n]=null}};n.getTypeNumber=function(){return t};n.setupPositionProbePattern=function(t,e,r){for(var n=-1;n<=7;n++){if(!(e+n<=-1||t.length<=e+n))for(var i=-1;i<=7;i++){if(!(r+i<=-1||t.length<=r+i)){var a=0<=n&&n<=6&&(0==i||6==i)||0<=i&&i<=6&&(0==n||6==n)||2<=n&&n<=4&&2<=i&&i<=4;t[e+n][r+i]=a}}}};n.setupTimingPattern=function(t){for(var e=8;e<t.length-8;e++){null==t[6][e]&&(t[6][e]=0==e%2)}for(var r=8;r<t.length-8;r++){null==t[r][6]&&(t[r][6]=0==r%2)}};n.setupPositionAdjustPattern=function(t){var e=qrPolynomial.getPatternPosition(n.getTypeNumber());for(var r=0;r<e.length;r++){for(var i=0;i<e.length;i++){var a=e[r],s=e[i];if(null==t[a][s]){for(var o=-2;o<=2;o++){for(var l=-2;l<=2;l++){var h=-2==o||2==o||-2==l||2==l||0==o&&0==l;t[a+o][s+l]=h}}}}}};n.setupTypeNumber=function(t,e){for(var r=QRUtil.getBCHTypeNumber(n.getTypeNumber()),i=0;i<18;i++){var a=!e&&1==(r>>i&1);t[Math.floor(i/3)][i%3+t.length-8-3]=a}if(e){for(var s=0;s<18;s++){var o=1==(r>>s&1);t[Math.floor(s/3)][s%3+t.length-8-3]=o}}};n.setupTypeInfo=function(t,e,r){for(var i=n.getErrorCorrectionLevel().bit<<3|r,a=QRUtil.getBCHTypeInfo(i),s=0;s<15;s++){var o=!e&&1==(a>>s&1);s<6?t[s][8]=o:s<8?t[s+1][8]=o:t[t.length-15+s][8]=o}for(var l=0;l<15;l++){var h=!e&&1==(a>>l&1);l<8?t[8][t.length-l-1]=h:l<9?t[8][15-l-1+1]=h:t[8][15-l-1]=h}t[t.length-8][8]=!e};n.mapData=function(t,e){for(var r=-1,i=t.length-1,a=7,s=!1,o=0,l=e.length,h=i;h>0;h-=2){6==h&&h--;for(;;){for(var u=0;u<2;u++){if(null==t[i][h-u]){var c=!1;o<l&&(c=1==(e[o]>>>a&1));var f=QRMaskPattern.getMask(r,i,h-u);f&&(c=!c);t[i][h-u]=c;a--;if(-1==a){o++;a=7}}}if(i+=s?1:-1,i<0||t.length<=i){i-=s?1:-1;s=!s;break}}}};var u="";n.makeStr=function(t){var e=t.length,r=0;for(var n=0;n<e;n++){var i=t.charCodeAt(n);128>i?r++:2048>i?r+=2:65536>i?r+=3:(r+=4,n++)}return r};n.addData=function(t){var e=new QR8bitByte(t);l=[e];s=null};n.getMaskPattern=function(t,e){for(var r=-1,n=0,i=0;i<8;i++){n.setup(n.getTypeNumber());n.setupPositionProbePattern(t,0,0);n.setupPositionProbePattern(t,t.length-7,0);n.setupPositionProbePattern(t,0,t.length-7);n.setupPositionAdjustPattern(t);n.setupTimingPattern(t);n.setupTypeInfo(t,!0,i);n.getTypeNumber()>=7&&n.setupTypeNumber(t,!0);null==s&&(s=n.createData(n.getTypeNumber(),n.getErrorCorrectionLevel(),l));n.mapData(t,s);var a=n.getLostPoint(t);(-1==r||a<r)&&(r=a,e=t)}return i};n.getLostPoint=function(t){var e=t.length,r=0;for(var n=0;n<e;n++){for(var i=0;i<e;i++){for(var a=0,s=n.isDark(n,i),o=-1;o<=1;o++){if(!(n+o<0||e<=n+o))for(var l=-1;l<=1;l++){0==o&&0==l||i+l<0||e<=i+l||s==n.isDark(n+o,i+l)&&a++}}a>5&&(r+=3+a-5)}}for(var h=0;h<e-1;h++){for(var u=0;u<e-1;u++){var c=0;n.isDark(h,u)&&c++;n.isDark(h+1,u)&&c++;n.isDark(h,u+1)&&c++;n.isDark(h+1,u+1)&&c++;0!=c&&4!=c||(r+=3)}}for(var f=0;f<e;f++){for(var p=0;p<e-6;p++){n.isDark(f,p)&&!n.isDark(f,p+1)&&n.isDark(f,p+2)&&n.isDark(f,p+3)&&n.isDark(f,p+4)&&!n.isDark(f,p+5)&&n.isDark(f,p+6)&&(r+=40)}}for(var d=0;d<e;d++){for(var g=0;g<e-6;g++){n.isDark(g,d)&&!n.isDark(g+1,d)&&n.isDark(g+2,d)&&n.isDark(g+3,d)&&n.isDark(g+4,d)&&!n.isDark(g+5,d)&&n.isDark(g+6,d)&&(r+=40)}}var v=0;for(var y=0;y<e;y++)for(var m=0;m<e;m++)n.isDark(m,y)&&v++;return r+=10*(Math.abs(100*v/e/e-50)/5)};n.createData=function(t,e,r){for(var i=RSBlock.getRSBlocks(t,e),a=new BitBuffer,s=0;s<r.length;s++){var o=r[s];a.put(o.getMode(),4);a.put(o.getLength(),QRUtil.getLengthInBits(o.getMode(),t));o.write(a)}var l=0;for(var h=0;h<i.length;h++)l+=i[h].dataCount;if(a.getLengthInBits()>8*l)throw new Error("code length overflow. ("+a.getLengthInBits()+">"+8*l+")");for(a.getLengthInBits()+4<=8*l&&a.put(0,4);0!=a.getLengthInBits()%8;)a.putBit(!1);for(;;){if(a.getLengthInBits()>=8*l)break;if(a.put(236,8),a.getLengthInBits()>=8*l)break;a.put(17,8)}return n.createBytes(a,i)};n.createBytes=function(t,e){for(var r=0,n=0,i=0,a=new Array(e.length),s=new Array(e.length),o=0;o<e.length;o++){var l=e[o].dataCount,h=e[o].totalCount-l;n=Math.max(n,l);i=Math.max(i,h);a[o]=new Array(l);for(var u=0;u<a[o].length;u++)a[o][u]=255&t.buffer[r++];s[o]=new Array(h);for(var c=0;c<s[o].length;c++)s[o][c]=0}for(var f=new Array(e.reduce(function(t,e){return t+e.totalCount},0)),p=0,d=0;d<n;d++)for(var g=0;g<e.length;g++)d<a[g].length&&(f[p++]=a[g][d]);for(var v=0;v<i;v++)for(var y=0;y<e.length;y++)v<s[y].length&&(f[p++]=s[y][v]);return f};return n};
+// Minimal QR helpers
+var QR8bitByte=function(t){this.mode={bit:4};this.data=t};QR8bitByte.prototype={getMode:function(){return this.mode},getLength:function(){return this.data.length},write:function(t){for(var e=0;e<this.data.length;e++){var r=this.data.charCodeAt(e);t.put(r,8)}}};
+var QRPolynomial=function(t,e){if(void 0===t.length)throw new Error(t.length+"/"+e);for(var r=0;r<t.length&&0==t[r];)r++;this.num=new Array(t.length-r+e);for(var n=0;n<t.length-r;n++)this.num[n]=t[n+r]};QRPolynomial.prototype={get:function(t){return this.num[t]},getLength:function(){return this.num.length},multiply:function(t){for(var e=new Array(this.getLength()+t.getLength()-1),r=0;r<this.getLength();r++)for(var n=0;n<t.getLength();n++)e[r+n]^=QRMath.gexp(QRMath.glog(this.get(r))+QRMath.glog(t.get(n)));return new QRPolynomial(e,0)},mod:function(t){if(this.getLength()-t.getLength()<0)return this;for(var e=QRMath.gexp(QRMath.glog(this.get(0))-QRMath.glog(t.get(0))+255),r=new Array(this.getLength()),n=0;n<this.getLength();n++)r[n]=this.get(n);for(var i=0;i<t.getLength();i++)r[i]^=QRMath.gexp(QRMath.glog(e)+QRMath.glog(t.get(i)));return new QRPolynomial(r,0).mod(t)}};
+var QRMath={glog:function(t){if(t<1)throw new Error("glog("+t+")");return QRMath.LOG_TABLE[t]},gexp:function(t){for(;t<0;)t+=255;for(;t>=256;)t-=255;return QRMath.EXP_TABLE[t]},EXP_TABLE:function(){for(var t=new Array(256),e=0;e<8;e++)t[e]=1<<e;for(var r=8;r<256;r++)t[r]=t[r-4]^t[r-5]^t[r-6]^t[r-8];return t}(),LOG_TABLE:function(){for(var t=new Array(256),e=0;e<255;e++)t[QRMath.EXP_TABLE[e]]=e;return t}()};
+var QRUtil={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,132],[6,34,60,86,112,136],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],getBCHTypeInfo:function(t){for(var e=t<<10;QRUtil.getBCHDigit(e)-QRUtil.getBCHDigit(1335)>=0;)e^=1335<<QRUtil.getBCHDigit(e)-QRUtil.getBCHDigit(1335);return 21522^(t<<10|e)},getBCHTypeNumber:function(t){for(var e=t<<12;QRUtil.getBCHDigit(e)-QRUtil.getBCHDigit(7973)>=0;)e^=7973<<QRUtil.getBCHDigit(e)-QRUtil.getBCHDigit(7973);return t<<12|e},getBCHDigit:function(t){for(var e=0;0!=t;)e++,t>>>=1;return e},getPatternPosition:function(t){return QRUtil.PATTERN_POSITION_TABLE[t-1]},getMask:function(t,e,r){switch(t){case 0:return(e+r)%2==0;case 1:return e%2==0;case 2:return r%3==0;case 3:return(e+r)%3==0;case 4:return(Math.floor(e/2)+Math.floor(r/3))%2==0;case 5:return e*r%2+e*r%3==0;case 6:return(e*r%2+e*r%3)%2==0;case 7:return(e*r%3+(e+r)%2)%2==0}throw new Error("bad maskPattern:"+t)},getErrorCorrectPolynomial:function(t){for(var e=new QRPolynomial([1],0),r=0;r<t;r++)e=e.multiply(new QRPolynomial([1,QRMath.gexp(r)],0));return e},getLengthInBits:function(t,e){if(1<=e&&e<10){if(4===t.bit)return 8}else if(e<27){if(4===t.bit)return 16}else if(4===t.bit)return 16;throw new Error("mode:"+t+"; type:"+e)},getLostPoint:function(){}};
+var QRMaskPattern={getMask:QRUtil.getMask};
+var RSBlock=function(){var t=function(t,e){this.totalCount=t,this.dataCount=e};t.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]];t.getRSBlocks=function(e,r){var n=t.getRSBlockTable(e,r);if(void 0===n)throw new Error("bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+r.name);for(var i=n.length/3,a=[],s=0;s<i;s++)for(var o=n[3*s+0],l=n[3*s+1],h=n[3*s+2],u=0;u<o;u++)a.push(new t(l,h));return a};t.getRSBlockTable=function(e,r){switch(r.name){case"L":return t.RS_BLOCK_TABLE[4*(e-1)+0];case"M":return t.RS_BLOCK_TABLE[4*(e-1)+1];case"Q":return t.RS_BLOCK_TABLE[4*(e-1)+2];case"H":return t.RS_BLOCK_TABLE[4*(e-1)+3]}};return t}();
+var BitBuffer=function(){this.buffer=[];this.length=0};BitBuffer.prototype={get:function(t){return 1==(this.buffer[Math.floor(t/8)]>>>7-t%8&1)},put:function(t,e){for(var r=0;r<e;r++)this.putBit(1==(t>>>e-r-1&1))},getLengthInBits:function(){return this.length},putBit:function(t){var e=Math.floor(this.length/8);this.buffer.length<=e&&this.buffer.push(0);t&&(this.buffer[e]|=128>>>this.length%8);this.length++}};
+function drawQR(canvas,text){try{var q=new qrcode(0,'M');q.addData(text);q.make();var s=q.getModuleCount(),sc=Math.floor(Math.min(canvas.width,canvas.height)/s);canvas.width=s*sc;canvas.height=s*sc;var ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#000';for(var r=0;r<s;r++)for(var c=0;c<s;c++)if(q.isDark(r,c))ctx.fillRect(c*sc,r*sc,sc,sc);}catch(e){console.error('QR error',e);}}
+
+// ===== MAIN =====
+var pixCode='';
+function init(){
+  var hash=location.hash;
+  if(!hash.startsWith('#pix=')){showErro();return;}
+  try{
+    var p=JSON.parse(decodeURIComponent(escape(atob(hash.slice(5)))));
+    pixCode=p.c||'';
+    render(p);
+  }catch(e){showErro();}
+}
+function showErro(){
+  document.getElementById('card').innerHTML='<div class="erro">Link inválido ou expirado.</div>';
+}
+function render(p){
+  var adm=p.a==='recon'?'Digital Consórcio (Recon - BMW)':'Digital Consórcio (Âncora - Kawasaki)';
+  var admCurta=p.a==='recon'?'Consórcio Nacional Recon':'Âncora Administradora';
+  var card=document.getElementById('card');
+  card.innerHTML=
+    '<div class="header">'+
+      '<div class="badge">Pagamento Seguro</div>'+
+      '<div class="title">'+(p.l||'Pagamento Pix')+'</div>'+
+      '<div class="adm">'+admCurta+'</div>'+
+      (p.v?'<div class="valor">'+p.v+'</div>':'')+
+      (p.n?'<div class="para">Para: '+p.n+'</div>':'')+
+    '</div>'+
+    '<div class="body" style="text-align:center;">'+
+      '<div class="qr-wrap"><canvas id="qr" width="200" height="200"></canvas></div>'+
+      '<div class="instrucao">Escaneie com o app do seu banco</div>'+
+      '<div class="codigo-box">'+p.c.substring(0,100)+'…</div>'+
+      '<button class="btn-copiar" id="btn" onclick="copiar()">📋 Copiar código Pix</button>'+
+      '<div class="copiado" id="msg">✅ Código copiado! Cole no seu banco.</div>'+
+    '</div>'+
+    '<div class="footer"><div class="footer-txt">🔒 '+adm+' — Pagamento Pix</div></div>';
+  setTimeout(function(){drawQR(document.getElementById('qr'),p.c);},80);
+}
+function copiar(){
+  if(!pixCode)return;
+  navigator.clipboard.writeText(pixCode).then(function(){ok();}).catch(function(){
+    var el=document.createElement('textarea');el.value=pixCode;
+    document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);ok();
+  });
+}
+function ok(){
+  document.getElementById('msg').style.display='block';
+  var b=document.getElementById('btn');if(b){b.textContent='✅ Copiado!';b.style.background='#0F7A5A';}
+}
+init();
+</script>
+</body>
+</html>
