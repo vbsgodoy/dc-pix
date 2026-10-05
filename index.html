@@ -8,7 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0B1220;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;font-family:'Inter',system-ui,sans-serif;}
+body{background:#0B1220;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;font-family:system-ui,sans-serif;}
 .card{width:100%;max-width:400px;background:#111E32;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6);}
 .header{background:linear-gradient(135deg,#0D1524,#111E32);padding:22px 24px;border-bottom:1px solid #1E2D4A;text-align:center;}
 .badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#5DCAA5;margin-bottom:8px;}
@@ -20,52 +20,61 @@ body{background:#0B1220;min-height:100vh;display:flex;flex-direction:column;alig
 #qrcode{display:inline-block;background:#fff;padding:14px;border-radius:14px;margin-bottom:14px;}
 #qrcode canvas,#qrcode img{display:block;}
 .instrucao{font-size:12px;color:#5DCAA5;margin-bottom:20px;}
-.btn-copiar{width:100%;padding:16px;background:#1D9E75;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.2s;}
-.btn-copiar:active{background:#0F7A5A;}
-.copiado{display:none;margin-top:12px;font-size:13px;color:#5DCAA5;font-weight:600;}
+.btn{width:100%;padding:16px;background:#1D9E75;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn:active{background:#0F7A5A;}
+.ok{display:none;margin-top:12px;font-size:13px;color:#5DCAA5;font-weight:600;}
 .footer{background:#070D19;padding:14px 24px;text-align:center;border-top:1px solid #1E2D4A;}
 .footer-txt{font-size:10px;color:#3A4A5A;}
-.erro{padding:40px;text-align:center;color:#dc2626;font-size:14px;}
 </style>
 </head>
 <body>
 <div class="card" id="card">
-  <div style="padding:40px;text-align:center;color:#5DCAA5;">Carregando...</div>
+  <div style="padding:40px;text-align:center;color:#5DCAA5;font-size:14px;">Carregando...</div>
 </div>
 <script>
 var pixCode='';
 
+function b64decode(str){
+  // Decodifica base64 com suporte a UTF-8 usando TextDecoder
+  try{
+    var bin=atob(str);
+    var bytes=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }catch(e){
+    // Fallback: tenta decodificar diretamente
+    return atob(str);
+  }
+}
+
 function showErro(msg){
-  document.getElementById('card').innerHTML='<div class="erro">'+(msg||'Link inválido ou expirado.')+'</div>';
+  document.getElementById('card').innerHTML=
+    '<div style="padding:40px;text-align:center;color:#dc2626;font-size:14px;">'+(msg||'Link inválido.')+'</div>';
 }
 
 function init(){
   try{
-    var hash=window.location.hash;
-    if(!hash||hash.indexOf('pix=')<0){showErro('Link inválido.');return;}
-    var b64=hash.substring(hash.indexOf('pix=')+4);
-    if(!b64){showErro('Dados ausentes.');return;}
-    var json;
-    try{
-      json=decodeURIComponent(escape(atob(b64)));
-    }catch(e){
-      try{json=atob(b64);}
-      catch(e2){showErro('Erro ao decodificar link.');return;}
-    }
+    var hash=window.location.hash||'';
+    var idx=hash.indexOf('pix=');
+    if(idx<0){showErro('Link inválido.');return;}
+    var b64=hash.substring(idx+4);
+    if(!b64){showErro('Dados ausentes no link.');return;}
+    var json=b64decode(b64);
     var p=JSON.parse(json);
     if(!p||!p.c){showErro('Código Pix não encontrado.');return;}
     pixCode=p.c;
     render(p);
   }catch(e){
-    showErro('Erro: '+e.message);
+    showErro('Erro ao carregar: '+e.message);
   }
 }
 
 function render(p){
-  var adm=p.a==='recon'?'Digital Consórcio (Recon - BMW)':'Digital Consórcio (Âncora - Kawasaki)';
-  var admCurta=p.a==='recon'?'Consórcio Nacional Recon':'Âncora Administradora';
-  var card=document.getElementById('card');
-  card.innerHTML=
+  var isRecon=p.a==='recon';
+  var admLabel=isRecon?'Digital Consórcio (Recon - BMW)':'Digital Consórcio (Âncora - Kawasaki)';
+  var admCurta=isRecon?'Consórcio Nacional Recon':'Âncora Administradora';
+
+  document.getElementById('card').innerHTML=
     '<div class="header">'+
       '<div class="badge">Pagamento Seguro</div>'+
       '<div class="title">'+(p.l||'Pagamento Pix')+'</div>'+
@@ -76,52 +85,44 @@ function render(p){
     '<div class="body">'+
       '<div id="qrcode"></div>'+
       '<div class="instrucao">Escaneie com o app do seu banco</div>'+
-      '<button class="btn-copiar" id="btn-copiar" onclick="copiar()">📋 Copiar código Pix</button>'+
-      '<div class="copiado" id="msg-copiado">✅ Copiado! Cole no seu banco.</div>'+
+      '<button class="btn" id="btn-copiar" onclick="copiar()">📋 Copiar código Pix</button>'+
+      '<div class="ok" id="ok-msg">✅ Código copiado! Cole no seu banco.</div>'+
     '</div>'+
-    '<div class="footer"><div class="footer-txt">🔒 '+adm+'</div></div>';
+    '<div class="footer"><div class="footer-txt">🔒 '+admLabel+'</div></div>';
 
-  // Gera QR code
   try{
     new QRCode(document.getElementById('qrcode'),{
-      text:p.c,
-      width:180,
-      height:180,
-      colorDark:'#000',
-      colorLight:'#fff',
+      text:p.c, width:180, height:180,
+      colorDark:'#000000', colorLight:'#ffffff',
       correctLevel:QRCode.CorrectLevel.M
     });
   }catch(e){
-    document.getElementById('qrcode').innerHTML='<div style="color:#8899AA;font-size:11px;padding:10px;">QR code indisponível</div>';
+    var qrel=document.getElementById('qrcode');
+    if(qrel) qrel.innerHTML='<p style="color:#666;font-size:11px;padding:10px;">QR indisponível</p>';
   }
 }
 
 function copiar(){
-  if(!pixCode)return;
+  if(!pixCode) return;
   try{
-    navigator.clipboard.writeText(pixCode).then(function(){ok();}).catch(function(){fallback();});
-  }catch(e){fallback();}
+    navigator.clipboard.writeText(pixCode).then(ok).catch(fallback);
+  }catch(e){ fallback(); }
 }
-
 function fallback(){
   var el=document.createElement('textarea');
-  el.value=pixCode;
-  el.style.position='fixed';
-  el.style.opacity='0';
-  document.body.appendChild(el);
-  el.focus();el.select();
-  try{document.execCommand('copy');ok();}catch(e){}
+  el.value=pixCode; el.style.cssText='position:fixed;opacity:0;';
+  document.body.appendChild(el); el.focus(); el.select();
+  try{ document.execCommand('copy'); ok(); }catch(e){}
   document.body.removeChild(el);
 }
-
 function ok(){
-  var m=document.getElementById('msg-copiado');
+  var m=document.getElementById('ok-msg');
   var b=document.getElementById('btn-copiar');
-  if(m)m.style.display='block';
-  if(b){b.textContent='✅ Copiado!';b.style.background='#0F7A5A';}
+  if(m) m.style.display='block';
+  if(b){ b.textContent='✅ Copiado!'; b.style.background='#0F7A5A'; }
 }
 
-window.addEventListener('load',init);
+window.addEventListener('load', init);
 </script>
 </body>
 </html>
